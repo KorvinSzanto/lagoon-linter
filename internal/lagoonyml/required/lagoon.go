@@ -1,4 +1,4 @@
-package lagoonyml
+package required
 
 import "encoding/json"
 

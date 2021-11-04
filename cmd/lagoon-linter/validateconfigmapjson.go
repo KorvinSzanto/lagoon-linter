@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/uselagoon/lagoon-linter/internal/lagoonyml"
+	"github.com/uselagoon/lagoon-linter/internal/lagoonyml/deprecated"
+	"github.com/uselagoon/lagoon-linter/internal/lagoonyml/required"
 )
 
 // ValidateConfigMapJSONCmd represents the validate command.
 type ValidateConfigMapJSONCmd struct {
 	ConfigMapJSON string `kong:"default='configmap.json',help='Specify the configmap JSON file dump.'"`
+	Profile       string `kong:"default='required',enum='required,deprecated',help='Set the linting profile (required,deprecated)'"`
 }
 
 // ConfigMap represents an individual configmap.
@@ -39,8 +41,14 @@ func (cmd *ValidateConfigMapJSONCmd) Run() error {
 	// lint it
 	for _, cm := range cml.ConfigMaps {
 		if lagoonYAML, ok := cm.Data[".lagoon.yml"]; ok {
-			err := lagoonyml.Lint([]byte(lagoonYAML),
-				lagoonyml.RouteAnnotation())
+			switch cmd.Profile {
+			case "required":
+				err = required.Lint([]byte(lagoonYAML), required.DefaultLinters)
+			case "deprecated":
+				err = deprecated.Lint([]byte(lagoonYAML), deprecated.DefaultLinters)
+			default:
+				return fmt.Errorf("invalid profile: %v", cmd.Profile)
+			}
 			if err != nil {
 				fmt.Printf("bad .lagoon.yml: %s: %v\n", cm.Metadata["namespace"], err)
 			}

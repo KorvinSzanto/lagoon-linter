@@ -1,0 +1,7 @@
+environments:
+  main:
+    monitoring_urls:
+      weird:
+        structure:
+        - "https://www.example.com"
+        - "https://www.example.com/special_page"

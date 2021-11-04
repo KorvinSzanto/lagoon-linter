@@ -1,0 +1,5 @@
+environments:
+  main:
+    monitoring_urls:
+    - "https://www.example.com"
+    - "https://www.example.com/special_page"
